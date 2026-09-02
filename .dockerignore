@@ -1,0 +1,37 @@
+# Cache and virtual environments
+.env
+.venv/
+__pycache__/
+*.py[oc]
+.ruff_cache/
+.pytest_cache/
+
+# Notebooks
+notebooks/
+
+# MLflow experiment store and raw/processed data — deploy/model/ is bundled separately
+mlruns/
+mlruns.db
+mlflow.db
+data/
+outputs/
+
+# Git and CI/CD
+.git/
+.github/
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Tests
+tests/
+
+# IDE and OS files
+.vscode/
+.idea/
+.DS_Store
+*.code-workspace
+
+# Reference scaffold, never needed in the image
+mlops-python-package-main/
+examples/

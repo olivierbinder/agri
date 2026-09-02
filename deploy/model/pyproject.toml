@@ -1,0 +1,71 @@
+[project]
+name = "agri"
+version = "0.1.0"
+description = "Predict the yield of agricultural crops."
+readme = "README.md"
+authors = [
+    { name = "Olivier" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    # Core & Configuration
+    "omegaconf>=2.3.1",
+    "pydantic-settings>=2.15.0",
+    "loguru>=0.7.3",
+
+    # Data Processing & Validation
+    "pandas<3",
+    "pandera>=0.32.1",
+
+    # Machine Learning
+    "scikit-learn>=1.9.0",
+    "xgboost>=3.3.0",
+    "shap>=0.52.0",
+    "tqdm-joblib>=0.0.5",
+
+    # MLOps & Tracking
+    "mlflow>=2",
+    "protobuf<5",      # Pin for MLflow compatibility
+    "setuptools<70",   # Pin for distutils compatibility
+
+    # Visualization
+    "matplotlib>=3.11.1",
+    "plotly>=6.9.0",
+    "seaborn>=0.13.2",
+]
+
+# DEPENDENCIES
+
+[dependency-groups]
+check = [
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.5",
+    "ty>=0.0.75",
+]
+notebook = [
+    "ipykernel>=7.3.0",
+    "nbformat>=5.10.4",
+]
+
+# SCRIPTS
+
+[project.scripts]
+agri = "agri:main"
+
+# TOOLS
+
+[tool.uv]
+default-groups = ["check", "notebook"]
+
+[build-system]
+requires = ["uv_build>=0.11.2,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["I001","F401"]
+
+

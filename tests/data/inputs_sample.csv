@@ -1,0 +1,201 @@
+Area,Item,Year,average_rain_fall_mm_per_year,pesticides_tonnes,avg_temp
+India,Cassava,2007,1083.0,27422.77,25.44
+Uganda,Cassava,1992,1180.0,72.0,23.46
+India,Cassava,1995,1083.0,61257.0,26.72
+Mexico,Cassava,2007,758.0,64501.28,22.18
+India,Cassava,1996,1083.0,56114.0,26.65
+Brazil,Cassava,1990,1761.0,49695.0,27.65
+Rwanda,Cassava,1994,1212.0,157.8,19.55
+Colombia,Cassava,2002,3240.0,84023.26,27.77
+India,Cassava,2008,1083.0,14485.33,25.88
+Bahamas,Cassava,2005,1292.0,315.74,25.43
+Dominican Republic,Cassava,2005,1410.0,3515.56,27.03
+India,Cassava,1998,1083.0,49157.0,25.87
+Argentina,Cassava,1992,591.0,26156.0,17.09
+Indonesia,Cassava,2000,2702.0,1597.0,27.44
+Bahamas,Cassava,2006,1292.0,268.2,25.34
+India,Cassava,1993,1083.0,66388.0,26.32
+Brazil,Cassava,1993,1761.0,75658.33,26.06
+Kenya,Cassava,2007,630.0,1578.0,16.6
+Mexico,Cassava,2001,758.0,31373.3,16.37
+India,Cassava,2002,1083.0,42482.56,24.91
+Australia,Maize,1993,534.0,23899.0,18.03
+Indonesia,Maize,2002,2702.0,1597.0,27.01
+Mexico,Maize,2006,758.0,50891.95,17.23
+Sri Lanka,Maize,2007,1712.0,1439.8,26.57
+Indonesia,Maize,1992,2702.0,825.0,27.2
+Spain,Maize,2006,636.0,39767.0,17.81
+Pakistan,Maize,1993,494.0,4945.0,23.08
+Belarus,Maize,1996,618.0,8306.31,5.32
+Pakistan,Maize,1999,494.0,20450.0,26.8
+Mexico,Maize,1995,758.0,34468.93,20.39
+Australia,Maize,1999,534.0,34200.0,19.28
+India,Maize,2001,1083.0,43720.04,24.5
+Algeria,Maize,2004,89.0,3747.86,17.38
+Ecuador,Maize,2009,2274.0,9666.87,22.01
+Canada,Maize,2009,537.0,54529.4,7.12
+Australia,Maize,2006,534.0,35900.0,20.17
+Mexico,Maize,1998,758.0,34468.93,20.31
+Spain,Maize,2001,636.0,35700.0,17.27
+Dominican Republic,Maize,1998,1410.0,4375.0,27.16
+Romania,Maize,2008,637.0,7193.7,12.5
+Nicaragua,Plantains and others,2002,2280.0,5715.36,27.0
+Colombia,Plantains and others,1990,3240.0,18058.29,22.4
+Kenya,Plantains and others,2008,630.0,1578.0,16.66
+Guatemala,Plantains and others,1999,1996.0,10249.94,19.44
+Ecuador,Plantains and others,2004,2274.0,29799.84,22.33
+Ghana,Plantains and others,1999,1187.0,114.13,26.74
+El Salvador,Plantains and others,1991,1784.0,4096.0,26.08
+Dominican Republic,Plantains and others,2002,1410.0,4018.07,27.05
+Sri Lanka,Plantains and others,1993,1712.0,1753.2,26.37
+Central African Republic,Plantains and others,2001,1342.0,22.87,25.28
+Colombia,Plantains and others,2008,3240.0,48538.97,27.16
+Ecuador,Plantains and others,2009,2274.0,9666.87,22.01
+Ecuador,Plantains and others,1998,2274.0,21500.0,22.72
+Malawi,Plantains and others,2002,1181.0,134.25,20.76
+Peru,Plantains and others,1990,1738.0,3134.0,16.84
+Colombia,Plantains and others,1998,3240.0,60687.0,23.07
+Honduras,Plantains and others,1999,1976.0,2387.0,24.41
+Haiti,Plantains and others,2009,1440.0,27.85,27.35
+Uganda,Plantains and others,1997,1180.0,88.0,24.04
+Dominican Republic,Plantains and others,1993,1410.0,4971.0,26.41
+Morocco,Potatoes,2004,346.0,15064.0,18.21
+Argentina,Potatoes,1996,591.0,54595.0,17.97
+Brazil,Potatoes,1991,1761.0,58349.44,17.95
+Belarus,Potatoes,1998,618.0,8306.31,6.11
+Malawi,Potatoes,2000,1181.0,220.22,20.22
+Bangladesh,Potatoes,1998,2666.0,2068.0,26.13
+Egypt,Potatoes,1993,51.0,4175.0,20.74
+India,Potatoes,1999,1083.0,46195.0,24.9
+Bangladesh,Potatoes,1995,2666.0,1702.0,26.09
+Madagascar,Potatoes,1994,1513.0,76.15,19.96
+Australia,Potatoes,1993,534.0,23899.0,18.03
+Bangladesh,Potatoes,1997,2666.0,2035.0,25.55
+Turkey,Potatoes,1995,593.0,27328.0,19.15
+Bangladesh,Potatoes,1994,2666.0,1594.5,25.91
+Pakistan,Potatoes,1997,494.0,16936.0,23.76
+India,Potatoes,1996,1083.0,56114.0,25.55
+Japan,Potatoes,2000,1668.0,79821.18,15.58
+Slovenia,Potatoes,1992,1162.0,1309.0,10.78
+Denmark,Potatoes,2004,703.0,2899.0,9.0
+Australia,Potatoes,2001,534.0,32710.0,20.21
+Turkey,"Rice, paddy",1999,593.0,33089.0,18.74
+India,"Rice, paddy",2000,1083.0,44957.52,27.03
+Turkey,"Rice, paddy",2006,593.0,27421.0,17.71
+Australia,"Rice, paddy",2000,534.0,33475.0,19.89
+Bangladesh,"Rice, paddy",1990,2666.0,1266.0,25.98
+India,"Rice, paddy",1996,1083.0,56114.0,25.75
+India,"Rice, paddy",1999,1083.0,46195.0,27.21
+Chile,"Rice, paddy",1997,1522.0,15373.0,13.66
+Iraq,"Rice, paddy",2004,216.0,828.62,20.0
+Greece,"Rice, paddy",2002,652.0,11852.0,18.33
+Indonesia,"Rice, paddy",2002,2702.0,1597.0,27.01
+El Salvador,"Rice, paddy",1992,1784.0,3940.77,26.22
+Pakistan,"Rice, paddy",2002,494.0,10881.83,19.7
+Peru,"Rice, paddy",1990,1738.0,3134.0,16.84
+Turkey,"Rice, paddy",1997,593.0,34431.0,17.2
+India,"Rice, paddy",2005,1083.0,35342.0,26.23
+Kazakhstan,"Rice, paddy",2001,250.0,3007.26,3.85
+Pakistan,"Rice, paddy",2005,494.0,7914.31,27.21
+India,"Rice, paddy",1991,1083.0,72133.0,25.96
+South Africa,"Rice, paddy",2000,495.0,26857.0,15.13
+India,Sorghum,1995,1083.0,61257.0,27.03
+Burkina Faso,Sorghum,1991,748.0,29.1,28.4
+India,Sorghum,1992,1083.0,70791.0,25.16
+Brazil,Sorghum,2006,1761.0,238716.0,26.26
+Italy,Sorghum,1997,832.0,84799.0,13.13
+Kazakhstan,Sorghum,2005,250.0,3666.62,4.0
+Thailand,Sorghum,1990,1622.0,18849.0,27.96
+Pakistan,Sorghum,1999,494.0,20450.0,25.5
+Niger,Sorghum,2009,151.0,7.32,30.32
+Zimbabwe,Sorghum,1995,657.0,2599.0,21.57
+Pakistan,Sorghum,2009,494.0,3957.61,27.88
+Ecuador,Sorghum,1992,2274.0,2012.0,22.19
+Burundi,Sorghum,2004,1274.0,508.26,21.71
+Brazil,Sorghum,2005,1761.0,232232.0,19.42
+Morocco,Sorghum,1992,346.0,10178.29,17.56
+Brazil,Sorghum,1990,1761.0,49695.0,17.77
+Brazil,Sorghum,2009,1761.0,335742.0,18.38
+Mexico,Sorghum,1997,758.0,34468.93,16.25
+Lesotho,Sorghum,1994,788.0,0.3,14.22
+India,Sorghum,2008,1083.0,14485.33,25.68
+Kazakhstan,Soybeans,2008,250.0,7044.9,4.19
+Thailand,Soybeans,2000,1622.0,20334.0,27.52
+Germany,Soybeans,1990,700.0,31289.0,10.71
+Mexico,Soybeans,2001,758.0,31373.3,21.23
+India,Soybeans,1993,1083.0,66388.0,24.34
+Honduras,Soybeans,2004,1976.0,3034.91,24.68
+Mexico,Soybeans,1996,758.0,34468.93,16.08
+India,Soybeans,1993,1083.0,66388.0,25.06
+Indonesia,Soybeans,2002,2702.0,1597.0,27.49
+India,Soybeans,2002,1083.0,42482.56,26.12
+Mexico,Soybeans,2005,758.0,51741.99,21.42
+India,Soybeans,1999,1083.0,46195.0,26.85
+Canada,Soybeans,1993,537.0,29296.5,5.87
+Cameroon,Soybeans,2007,1604.0,918.88,25.49
+Australia,Soybeans,1990,534.0,17866.0,18.05
+Japan,Soybeans,1992,1668.0,79821.18,12.94
+Australia,Soybeans,1991,534.0,17866.0,20.29
+South Africa,Soybeans,1991,495.0,16582.0,18.86
+Azerbaijan,Soybeans,2006,447.0,148.68,12.66
+South Africa,Soybeans,1990,495.0,16582.0,15.56
+South Africa,Sweet potatoes,1990,495.0,16582.0,18.91
+Indonesia,Sweet potatoes,1999,2702.0,1597.0,27.01
+India,Sweet potatoes,2005,1083.0,35342.0,25.07
+Pakistan,Sweet potatoes,2005,494.0,7914.31,26.8
+New Zealand,Sweet potatoes,1997,1732.0,3249.0,12.77
+Brazil,Sweet potatoes,1990,1761.0,49695.0,18.47
+Brazil,Sweet potatoes,2007,1761.0,304031.0,18.66
+South Africa,Sweet potatoes,2004,495.0,26857.0,21.11
+Chile,Sweet potatoes,2002,1522.0,12047.63,12.95
+Australia,Sweet potatoes,1997,534.0,34091.0,20.16
+Brazil,Sweet potatoes,1992,1761.0,67003.89,20.21
+Brazil,Sweet potatoes,2007,1761.0,304031.0,22.19
+Brazil,Sweet potatoes,2009,1761.0,335742.0,18.38
+Sri Lanka,Sweet potatoes,2005,1712.0,1742.41,26.73
+South Africa,Sweet potatoes,1998,495.0,24304.0,16.11
+Bahrain,Sweet potatoes,1990,83.0,14.05,26.26
+South Africa,Sweet potatoes,1997,495.0,21596.0,15.38
+Zimbabwe,Sweet potatoes,2007,657.0,3199.63,20.75
+Italy,Sweet potatoes,1999,832.0,81583.0,12.95
+India,Sweet potatoes,1991,1083.0,72133.0,26.54
+Germany,Wheat,1998,700.0,33377.0,9.31
+India,Wheat,2007,1083.0,27422.77,25.58
+Colombia,Wheat,2001,3240.0,85515.3,22.5
+Brazil,Wheat,1996,1761.0,101621.67,20.18
+Honduras,Wheat,1996,1976.0,6464.0,24.39
+Canada,Wheat,1990,537.0,29568.0,6.07
+Canada,Wheat,1990,537.0,29568.0,8.2
+Turkey,Wheat,1991,593.0,24343.0,11.2
+Australia,Wheat,1993,534.0,23899.0,18.03
+Lebanon,Wheat,1990,661.0,1221.0,19.4
+Mexico,Wheat,1994,758.0,34468.93,22.83
+Niger,Wheat,1991,151.0,62.0,29.4
+Brazil,Wheat,1992,1761.0,67003.89,17.8
+Switzerland,Wheat,2002,1537.0,1526.6,8.42
+Kenya,Wheat,1991,630.0,3469.0,16.26
+Uganda,Wheat,2009,1180.0,88.0,24.18
+Turkey,Wheat,1996,593.0,30286.0,19.47
+Namibia,Wheat,2006,285.0,56.0,19.42
+Brazil,Wheat,2001,1761.0,151523.0,27.08
+Chile,Wheat,2007,1522.0,9830.72,12.31
+Guinea,Yams,1991,1651.0,80.0,27.22
+Portugal,Yams,2000,854.0,15470.0,16.23
+Cameroon,Yams,2000,1604.0,545.0,24.88
+Dominican Republic,Yams,1997,1410.0,3846.0,27.01
+Colombia,Yams,2008,3240.0,48538.97,27.16
+Burkina Faso,Yams,1992,748.0,29.1,28.06
+Ghana,Yams,1996,1187.0,1575.5,26.61
+Brazil,Yams,2007,1761.0,304031.0,22.19
+Dominican Republic,Yams,1996,1410.0,3493.0,26.29
+Cameroon,Yams,1999,1604.0,653.0,24.97
+Colombia,Yams,2005,3240.0,117881.45,22.69
+Brazil,Yams,2006,1761.0,238716.0,21.82
+Japan,Yams,1995,1668.0,79821.18,12.98
+Brazil,Yams,1997,1761.0,110276.11,20.77
+Ghana,Yams,2005,1187.0,166.16,27.06
+Haiti,Yams,1990,1440.0,17.14,27.11
+Jamaica,Yams,2004,2051.0,909.71,27.47
+Mauritania,Yams,2006,92.0,1.7,27.82
+Papua New Guinea,Yams,2002,3142.0,105.0,25.48
+Japan,Yams,2005,1668.0,63829.77,15.36

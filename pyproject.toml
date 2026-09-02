@@ -38,8 +38,10 @@ dependencies = [
 
 [dependency-groups]
 check = [
+    "httpx>=0.28.1",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
+    "pytest-xdist>=3.6.1",
     "ruff>=0.16.5",
     "ty>=0.0.75",
 ]
@@ -88,6 +90,8 @@ extend-immutable-calls = ["fastapi.Depends"]
 
 [tool.ruff.lint.per-file-ignores]
 "*.ipynb" = ["I001","F401"]
+# `assert` is the standard pytest mechanism, not a security concern in test code.
+"tests/**" = ["S101"]
 # Top-level Streamlit callbacks: catch-all Exception is intentional, to show a
 # friendly error message regardless of failure cause.
 "src/agri/ui/app.py" = ["BLE001"]

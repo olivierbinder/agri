@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import requests
 import streamlit as st
@@ -11,7 +13,9 @@ st.markdown(
     "This application predicts crop yields based on climate and agricultural data."
 )
 
-API_URL = "http://localhost:8000"
+# Defaults to local dev; set via Streamlit secrets (st.secrets["API_URL"]) or the
+# API_URL env var when this app calls a separately deployed API.
+API_URL = st.secrets.get("API_URL", os.environ.get("API_URL", "http://localhost:8000"))
 API_TIMEOUT_SECONDS = 30
 
 st.sidebar.header("Mode")
@@ -81,7 +85,7 @@ if mode == "🔮 Predict a yield":
             "avg_temp": temp,
         }
 
-        with st.spinner("Calling MLflow Champion Model via FastAPI..."):
+        with st.spinner("Calling the FastAPI model server..."):
             try:
                 response = requests.post(
                     f"{API_URL}/predict", json=payload, timeout=API_TIMEOUT_SECONDS
@@ -96,7 +100,7 @@ if mode == "🔮 Predict a yield":
 
             except requests.exceptions.ConnectionError:
                 st.error(
-                    "❌ Failed to connect to FastAPI. Is the backend running on port 8000?"
+                    f"❌ Failed to connect to the API at {API_URL}. Is it running?"
                 )
             except Exception as e:
                 st.error(f"❌ Error during prediction: {e}")
@@ -111,7 +115,7 @@ else:
             "avg_temp": temp,
         }
 
-        with st.spinner("Simulating yield for every crop via FastAPI..."):
+        with st.spinner("Simulating yield for every crop via the API..."):
             try:
                 response = requests.post(
                     f"{API_URL}/recommend", json=payload, timeout=API_TIMEOUT_SECONDS
@@ -152,7 +156,7 @@ else:
 
             except requests.exceptions.ConnectionError:
                 st.error(
-                    "❌ Failed to connect to FastAPI. Is the backend running on port 8000?"
+                    f"❌ Failed to connect to the API at {API_URL}. Is it running?"
                 )
             except Exception as e:
                 st.error(f"❌ Error during recommendation: {e}")

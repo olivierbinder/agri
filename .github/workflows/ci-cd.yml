@@ -1,0 +1,98 @@
+name: CI/CD
+
+on:
+  push:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  # 1. Tests — unit tests on the API's critical logic (agri/api/logic.py, agri/api/server.py),
+  #    plus lint/type/format as a quality gate. Runs on every push and every PR into main.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: .python-version
+      - run: uv sync --group=check
+      - run: uv run just check-code
+      - run: uv run just check-type
+      - run: uv run just check-format
+      - run: uv run just check-coverage
+
+  # 2. Build — the API's Docker image, pushed to Docker Hub. Only on pushes to main (not
+  #    PRs, not other branches): we don't want half-finished branches published.
+  build-and-push:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/agri-api:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/agri-api:${{ github.sha }}
+
+  # 3. Deploy — tells Render to pull the image just pushed to Docker Hub and restart the
+  #    API service. The Streamlit frontend (Streamlit Community Cloud) isn't deployed from
+  #    here: it watches this repo's main branch directly and redeploys itself on push.
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
+  # 4. Notify on failure — opens (or updates) a tracking issue when any job above fails,
+  #    since there's no chat webhook configured for this project.
+  notify-on-failure:
+    needs: [test, build-and-push, deploy]
+    if: always() && contains(needs.*.result, 'failure')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "CI/CD pipeline failed";
+            const body = `The [CI/CD workflow](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) failed on commit ${context.sha}.`;
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              labels: "pipeline-failure",
+            });
+            if (existing.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ["pipeline-failure"],
+              });
+            }

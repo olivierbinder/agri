@@ -30,7 +30,7 @@ wheels/
 notebooks/plots
 
 # Data
-data/
+/data/
 
 # MLflow / MLruns
 mlflow.db

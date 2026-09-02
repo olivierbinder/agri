@@ -103,8 +103,14 @@ class EvaluationsJob(base.Job):
                 alias_or_version = self.alias_or_version
 
             # Fetch model_kind from the original Training run that registered this version
+            if str(alias_or_version).isdigit():
+                resolved_version = str(alias_or_version)
+            else:
+                resolved_version = client.get_model_version_by_alias(
+                    name=name, alias=str(alias_or_version)
+                ).version
             model_version_details = client.get_model_version(
-                name=name, version=str(alias_or_version)
+                name=name, version=str(resolved_version)
             )
             original_run = client.get_run(str(model_version_details.run_id))
 

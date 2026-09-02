@@ -1,0 +1,8 @@
+# https://docs.docker.com/compose/compose-file/
+
+services:
+  api:
+    build: .
+    container_name: agri_api
+    ports:
+      - "8000:8000"
