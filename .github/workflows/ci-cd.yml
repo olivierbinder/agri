@@ -23,7 +23,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version-file: .python-version
-      - run: uv sync --group=check
+      - run: uv sync --no-default-groups --group=check --group=dev
       - run: uv run just check-code
       - run: uv run just check-type
       - run: uv run just check-format
@@ -51,48 +51,3 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/agri-api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/agri-api:${{ github.sha }}
-
-  # 3. Deploy — tells Render to pull the image just pushed to Docker Hub and restart the
-  #    API service. The Streamlit frontend (Streamlit Community Cloud) isn't deployed from
-  #    here: it watches this repo's main branch directly and redeploys itself on push.
-  deploy:
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Trigger Render deploy
-        run: curl -fsS -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
-
-  # 4. Notify on failure — opens (or updates) a tracking issue when any job above fails,
-  #    since there's no chat webhook configured for this project.
-  notify-on-failure:
-    needs: [test, build-and-push, deploy]
-    if: always() && contains(needs.*.result, 'failure')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/github-script@v7
-        with:
-          script: |
-            const title = "CI/CD pipeline failed";
-            const body = `The [CI/CD workflow](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}) failed on commit ${context.sha}.`;
-            const existing = await github.rest.issues.listForRepo({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: "open",
-              labels: "pipeline-failure",
-            });
-            if (existing.data.length > 0) {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: existing.data[0].number,
-                body,
-              });
-            } else {
-              await github.rest.issues.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title,
-                body,
-                labels: ["pipeline-failure"],
-              });
-            }

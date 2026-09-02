@@ -11,8 +11,8 @@ through a FastAPI backend with a Streamlit frontend.
 
 ## Architecture
 
-The API and the frontend are deployed independently — there's no single
-"Docker Space" running both, unlike an earlier iteration of this project:
+The pipeline only handles tests and the API's Docker image — no automated
+deployment, this is a learning project:
 
 ```mermaid
 flowchart LR
@@ -23,20 +23,17 @@ flowchart LR
     ci -->|1. test| tests[pytest + ruff + ty]
     ci -->|2. build| build[Docker build: API image]
     ci -->|3. push| hub[(Docker Hub<br/>agri-api)]
-    ci -->|4. deploy hook| render[Render<br/>FastAPI API]
 
     scc[Streamlit Community Cloud] -->|watches repo,<br/>redeploys on push| ui[Streamlit UI]
-    ui -->|HTTP: API_URL secret| render
 ```
 
-- **API** ([Dockerfile](Dockerfile)): built and pushed to Docker Hub by the CI/CD
-  pipeline, then deployed on [Render](https://render.com) (free tier), which pulls
-  the new image via a deploy hook the pipeline calls after each push.
+- **API** ([Dockerfile](Dockerfile)): tested and its Docker image built/pushed
+  to Docker Hub by the CI/CD pipeline. Running the image anywhere is a manual
+  step, outside this pipeline.
 - **Frontend** ([src/agri/ui/app.py](src/agri/ui/app.py)): deployed on
   [Streamlit Community Cloud](https://streamlit.io/cloud), connected directly to
   this GitHub repo — it redeploys itself on every push to `main`, independently of
-  the GitHub Actions pipeline. It calls the live API over HTTP (`API_URL`,
-  configured as a Streamlit secret).
+  the GitHub Actions pipeline and set up separately from it.
 
 ## CI/CD pipeline
 
@@ -46,11 +43,9 @@ Single workflow: [.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml).
 |---|---|---|
 | `test` | every push, every PR into `main` | `just check-code` (ruff lint), `check-type` (ty), `check-format` (ruff format), `check-coverage` (pytest + coverage ≥80%) — including [tests/api/](tests/api/), the API's critical logic (`predict_yield`, `recommend_crops`, the `/predict` and `/recommend` endpoints). |
 | `build-and-push` | push to `main` only | Builds the API's Docker image, pushes `agri-api:latest` and `agri-api:<sha>` to Docker Hub. |
-| `deploy` | after `build-and-push` | `curl`s Render's deploy hook, so Render pulls the freshly-pushed image and restarts the API. |
-| `notify-on-failure` | any job above fails | Opens (or comments on) a GitHub issue labeled `pipeline-failure`, linking to the failed run — since there's no chat webhook configured for this project. |
 
-`build-and-push` and `deploy` are gated to `main` — pushes to other branches and
-PRs only run `test`, so nothing half-finished gets published.
+`build-and-push` is gated to `main` — pushes to other branches and PRs only
+run `test`, so nothing half-finished gets published.
 
 ### Required secrets (repo Settings → Secrets and variables → Actions)
 
@@ -58,15 +53,15 @@ PRs only run `test`, so nothing half-finished gets published.
 |---|---|
 | `DOCKERHUB_USERNAME` | Docker Hub login + image tag namespace |
 | `DOCKERHUB_TOKEN` | Docker Hub [access token](https://hub.docker.com/settings/security) (not your password) |
-| `RENDER_DEPLOY_HOOK_URL` | Render service → Settings → Deploy Hook |
 
 ### Streamlit Community Cloud setup
 
-Connect this repo (main branch, `src/agri/ui/app.py` as the entry point), then
+Set up separately from the CI/CD pipeline: connect this repo (main branch,
+`src/agri/ui/app.py` as the entry point) in Streamlit Community Cloud, then
 add under the app's Settings → Secrets:
 
 ```toml
-API_URL = "https://<your-render-service>.onrender.com"
+API_URL = "https://<wherever-the-api-runs>"
 ```
 
 ## Local development
