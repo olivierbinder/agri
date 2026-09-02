@@ -1,0 +1,8 @@
+job:
+  KIND: InferenceJob
+  inputs:
+    KIND: CsvReader
+    path: data/processed/inputs_test.csv
+  outputs:
+    KIND: CsvWriter
+    path: outputs/predictions_test.csv

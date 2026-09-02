@@ -1,0 +1,29 @@
+job:
+  KIND: TuningJob
+  inputs:
+    KIND: CsvReader
+    path: data/processed/inputs_train.csv
+  targets:
+    KIND: CsvReader
+    path: data/processed/targets_train.csv
+  model:
+    KIND: XGBoost
+  splitter:
+    KIND: YearSplitter
+  metrics:
+    - KIND: SklearnMetric
+      name: RMSE
+      sklearn_name: root_mean_squared_error
+      greater_is_better: false
+    - KIND: SklearnMetric
+      name: R2
+      sklearn_name: r2_score
+      greater_is_better: true
+  searcher:
+    KIND: GridCVSearcher
+    param_grid:
+      max_depth: [10]
+      n_estimators: [400]
+      colsample_bytree: [1.0]
+      learning_rate: [0.15, 0.2]   # Ultime vérification
+      subsample: [0.9, 1.0]

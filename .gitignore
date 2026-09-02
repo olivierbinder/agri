@@ -1,0 +1,44 @@
+# OS
+.DS_Store
+
+# Python
+__pycache__/
+*.py[oc]
+*.egg-info/
+build/
+dist/
+wheels/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+
+# Virtual environments
+.venv/
+
+# Environment variables / secrets
+.env
+.env.*
+
+# Editors / tools
+.vscode/
+.gemini/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+notebooks/plots
+
+# Data
+data/
+
+# MLflow / MLruns
+mlflow.db
+mlruns.db
+mlruns/
+
+# Project outputs
+outputs/
+
+# Reference scaffold, kept locally but not versioned
+mlops-python-package-main/

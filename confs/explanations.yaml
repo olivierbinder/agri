@@ -1,0 +1,12 @@
+job:
+  KIND: ExplanationsJob
+  inputs_samples:
+    KIND: CsvReader
+    path: data/processed/inputs_test.csv
+    limit: 100
+  models_explanations:
+    KIND: CsvWriter
+    path: outputs/models_explanations.csv
+  samples_explanations:
+    KIND: CsvWriter
+    path: outputs/samples_explanations.csv

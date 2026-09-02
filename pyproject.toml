@@ -1,0 +1,102 @@
+[project]
+name = "agri"
+version = "0.1.0"
+description = "Predict the yield of agricultural crops."
+readme = "README.md"
+authors = [
+    { name = "Olivier" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    # Core & Configuration
+    "omegaconf>=2.3.1",
+    "pydantic-settings>=2.15.0",
+    "loguru>=0.7.3",
+    # Data Processing & Validation
+    "pandas<3",
+    "pandera>=0.32.1",
+    # Machine Learning
+    "scikit-learn>=1.9.0",
+    "xgboost>=3.3.0",
+    "shap>=0.52.0",
+    "tqdm-joblib>=0.0.5",
+    # MLOps & Tracking
+    "mlflow>=2",
+    "protobuf<5",      # Pin for MLflow compatibility
+    "setuptools<70",   # Pin for distutils compatibility
+    # Visualization
+    "matplotlib>=3.11.1",
+    "plotly>=6.9.0",
+    "seaborn>=0.13.2",
+    "fastapi>=0.141.1",
+    "uvicorn>=0.52.4",
+    "streamlit>=1.60.0",
+    "requests>=2.34.2",
+]
+
+# DEPENDENCIES
+
+[dependency-groups]
+check = [
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.16.5",
+    "ty>=0.0.75",
+]
+commit = [
+    "commitizen>=4.4.1",
+    "pre-commit>=4.1.0",
+]
+notebook = [
+    "ipykernel>=7.3.0",
+    "nbformat>=5.10.4",
+]
+
+# SCRIPTS
+
+[project.scripts]
+agri = "agri:main"
+
+# TOOLS
+
+[tool.uv]
+default-groups = ["check", "commit", "notebook"]
+
+[build-system]
+requires = ["uv_build>=0.11.2,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+extend-include = ["*.ipynb"]
+
+[tool.ruff.lint]
+# S = flake8-bandit (security checks: hardcoded secrets, unsafe deserialization,
+# missing request timeouts, shell=True, weak crypto, etc.), on top of the defaults.
+extend-select = ["S"]
+# PLE1205 assumes stdlib logging's %-style placeholders; this project uses loguru's
+# {}-style, which it misreads as "too many arguments" on every call.
+# RUF012 (mutable default for a class attribute) is a false positive on our frozen
+# pydantic Job models: pydantic copies each default per instance, and frozen=True
+# blocks mutation after init, so the aliasing bug this rule guards against can't occur.
+ignore = ["PLE1205", "RUF012"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's dependency-injection pattern is `param = Depends(...)` in the signature;
+# that's the framework's documented usage, not the mutable-default-argument bug B008
+# guards against.
+extend-immutable-calls = ["fastapi.Depends"]
+
+[tool.ruff.lint.per-file-ignores]
+"*.ipynb" = ["I001","F401"]
+# Top-level Streamlit callbacks: catch-all Exception is intentional, to show a
+# friendly error message regardless of failure cause.
+"src/agri/ui/app.py" = ["BLE001"]
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "v$version"
+version_scheme = "pep440"
+version_provider = "pep621"
+update_changelog_on_bump = true
+
+

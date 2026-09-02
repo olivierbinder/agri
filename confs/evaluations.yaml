@@ -1,0 +1,17 @@
+job:
+  KIND: EvaluationsJob
+  inputs:
+    KIND: CsvReader
+    path: data/processed/inputs_test.csv
+  targets:
+    KIND: CsvReader
+    path: data/processed/targets_test.csv
+  metrics:
+    - KIND: SklearnMetric
+      name: RMSE
+      sklearn_name: root_mean_squared_error
+      greater_is_better: false
+    - KIND: SklearnMetric
+      name: R2
+      sklearn_name: r2_score
+      greater_is_better: true

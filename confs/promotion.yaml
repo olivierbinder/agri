@@ -1,0 +1,3 @@
+job:
+  KIND: PromotionJob
+  alias: Champion
