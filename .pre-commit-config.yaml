@@ -20,8 +20,12 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: 'v0.16.5'
     hooks:
+      # Match `just check-code`/`check-format` scope exactly: notebooks/ is exploratory
+      # work, not linted or tested by the CI pipeline, so don't block pushes on it here.
       - id: ruff
+        files: ^(src|tests)/
       - id: ruff-format
+        files: ^(src|tests)/
   - repo: https://github.com/commitizen-tools/commitizen
     rev: 'v4.18.0'
     hooks:

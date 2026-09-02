@@ -67,5 +67,3 @@ extend-include = ["*.ipynb"]
 
 [tool.ruff.lint.per-file-ignores]
 "*.ipynb" = ["I001","F401"]
-
-
