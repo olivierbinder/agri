@@ -5,7 +5,7 @@
 
 import warnings
 
-# disable annoying mlflow warnings
+# disable annoying mlflow warnings.
 warnings.filterwarnings(action="ignore", category=UserWarning)
 
 # %% IMPORT

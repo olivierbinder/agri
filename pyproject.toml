@@ -19,7 +19,6 @@ dependencies = [
     "scikit-learn>=1.9.0",
     "xgboost>=3.3.0",
     "shap>=0.52.0",
-    "tqdm-joblib>=0.0.5",
     # MLOps & Tracking
     "mlflow>=2",
     "protobuf<5",      # Pin for MLflow compatibility
@@ -28,10 +27,11 @@ dependencies = [
     "matplotlib>=3.11.1",
     "plotly>=6.9.0",
     "seaborn>=0.13.2",
+    # Web & API
     "fastapi>=0.141.1",
-    "uvicorn>=0.52.4",
-    "streamlit>=1.60.0",
     "requests>=2.34.2",
+    "streamlit>=1.60.0",
+    "uvicorn>=0.52.4",
 ]
 
 # DEPENDENCIES
@@ -52,9 +52,15 @@ commit = [
 dev = [
     "rust-just>=1.39.0",
 ]
+docs = [
+    "zensical>=0.0.58",
+]
 notebook = [
     "ipykernel>=7.3.0",
+    "ipywidgets>=8.1.9",
+    "nbconvert>=7.17.1",
     "nbformat>=5.10.4",
+    "tqdm-joblib>=0.0.5",
 ]
 
 # SCRIPTS

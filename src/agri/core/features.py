@@ -32,8 +32,9 @@ class AgriFeatureEngineer(BaseEstimator, TransformerMixin):
         X_out["rain_temp_interaction"] = (
             X_out["average_rain_fall_mm_per_year"] * X_out["avg_temp"]
         )
+        # De Martonne aridity index: rainfall relative to temperature-driven evaporation.
         X_out["rain_efficiency"] = X_out["average_rain_fall_mm_per_year"] / (
-            X_out["avg_temp"] + 1
+            X_out["avg_temp"] + 10
         )
 
         # 2. Temperature deviation

@@ -150,6 +150,11 @@ class TuningJob(base.Job):
                     nested=True,
                     log_system_metrics=False,
                 ):
+                    # tags (so child runs are filterable on their own, without
+                    # needing to look up the parent Tuning run)
+                    mlflow.set_tag("model_kind", self.model.KIND)
+                    mlflow.set_tag("splitter_kind", self.splitter.KIND)
+                    mlflow.set_tag("preprocessor_kind", self.model.preprocessor.KIND)
                     # log parameters
                     mlflow.log_params(row["params"])
                     # log metrics

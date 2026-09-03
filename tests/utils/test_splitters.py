@@ -58,9 +58,11 @@ def test_time_series_splitter(inputs: schemas.Inputs, targets: schemas.Targets) 
         )
 
 
-def test_year_splitter(inputs: schemas.Inputs, targets: schemas.Targets) -> None:
+def test_expanding_window_splitter(
+    inputs: schemas.Inputs, targets: schemas.Targets
+) -> None:
     # given
-    splitter = splitters.YearSplitter()
+    splitter = splitters.ExpandingWindowSplitter()
     folds = [
         (1993, 1994, 1997),
         (1997, 1998, 2001),
@@ -84,4 +86,38 @@ def test_year_splitter(inputs: schemas.Inputs, targets: schemas.Targets) -> None
         )
         assert set(train_index).isdisjoint(test_index), (
             "Train and test indexes should never overlap!"
+        )
+
+
+def test_rolling_window_splitter(
+    inputs: schemas.Inputs, targets: schemas.Targets
+) -> None:
+    # given
+    window, test_size, step = 5, 4, 4
+    splitter = splitters.RollingWindowSplitter(
+        window=window, test_size=test_size, step=step
+    )
+    years = inputs["Year"].astype(int)
+    # when
+    n_splits = splitter.get_n_splits(inputs=inputs, targets=targets)
+    splits = list(splitter.split(inputs=inputs, targets=targets))
+    # then
+    assert n_splits == len(splits) == 3, "Splitter should return 3 folds!"
+    for train_index, test_index in splits:
+        train_years = sorted(years.iloc[train_index].unique())
+        test_years = sorted(years.iloc[test_index].unique())
+        assert len(train_years) == window, (
+            "Train fold should span the given number of distinct years!"
+        )
+        assert len(test_years) == test_size, (
+            "Test fold should span the given number of distinct years!"
+        )
+        assert max(train_years) < min(test_years), (
+            "Train years should always precede test years!"
+        )
+        assert set(train_index).isdisjoint(test_index), (
+            "Train and test indexes should never overlap!"
+        )
+        assert 2003 not in train_years and 2003 not in test_years, (
+            "2003 is absent from the dataset and should never appear in a fold!"
         )

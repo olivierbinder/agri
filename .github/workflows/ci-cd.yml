@@ -51,3 +51,68 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/agri-api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/agri-api:${{ github.sha }}
+
+  # 3. Notify on failure — opens (or updates) a tracking issue with the failed steps' logs
+  #    when any job above fails, since there's no chat webhook configured for this project.
+  notify-on-failure:
+    needs: [test, build-and-push]
+    if: always() && contains(needs.*.result, 'failure')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      issues: write
+    steps:
+      - name: Collect failed step logs
+        id: logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh run view "${{ github.run_id }}" --log-failed > failed.log || true
+          delimiter="EOF_$(date +%s%N)"
+          {
+            echo "logs<<$delimiter"
+            tail -c 5000 failed.log
+            echo "$delimiter"
+          } >> "$GITHUB_OUTPUT"
+      - uses: actions/github-script@v7
+        env:
+          FAILED_LOGS: ${{ steps.logs.outputs.logs }}
+        with:
+          script: |
+            const title = "CI/CD pipeline failed";
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            const logs = process.env.FAILED_LOGS || "(no logs captured)";
+            const body = [
+              `The [CI/CD workflow](${runUrl}) failed on commit ${context.sha}.`,
+              "",
+              "<details><summary>Failed step logs (last 5000 characters)</summary>",
+              "",
+              "```",
+              logs,
+              "```",
+              "",
+              "</details>",
+            ].join("\n");
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              labels: "pipeline-failure",
+            });
+            if (existing.data.length > 0) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ["pipeline-failure"],
+              });
+            }

@@ -11,7 +11,7 @@ from agri.core import metrics as metrics_
 from agri.core import models, schemas
 from agri.io import datasets, registries, services
 from agri.jobs import base
-from agri.utils import signers
+from agri.utils import signers, splitters
 
 # %% JOBS
 
@@ -23,9 +23,13 @@ class TrainingJob(base.Job):
         run_config (services.MlflowService.RunConfig): mlflow run config.
         inputs (datasets.ReaderKind): reader for the inputs data.
         targets (datasets.ReaderKind): reader for the targets data.
-        model (models.ModelKind): machine learning model to train.
+        model (models.ModelKind): machine learning model to train. Its params are
+            used as-is when use_best_from_tuning is False.
         metrics (metrics_.MetricsKind): metric list to compute.
-        splitter (splitters.SplitterKind): data sets splitter.
+        use_best_from_tuning (bool): overwrite model params with the ones from the
+            most recent Tuning run in this experiment, if any.
+        training_window_years (int | None): number of most recent distinct years
+            to train on. None trains on 100% of the given data.
         saver (registries.SaverKind): model saver.
         signer (signers.SignerKind): model signer.
         registry (registries.RegisterKind): model register.
@@ -45,7 +49,10 @@ class TrainingJob(base.Job):
     model: models.ModelKind = pdt.Field(models.RandomForest(), discriminator="KIND")
     # Metrics
     metrics: metrics_.MetricsKind = [metrics_.SklearnMetric()]
-    # Splitter removed since TrainingJob should train on 100% of the data
+    # Training window: TrainingJob still fits on 100% of the data it's given, but
+    # this optionally restricts that data to the N most recent distinct years first
+    # (cross-validation showed old data hurts accuracy, see RollingWindowSplitter).
+    training_window_years: int | None = None
     # Saver
     saver: registries.SaverKind = pdt.Field(
         registries.CustomSaver(), discriminator="KIND"
@@ -81,6 +88,27 @@ class TrainingJob(base.Job):
             targets_ = self.targets.read()  # unchecked!
             targets = schemas.TargetsSchema.check(targets_)
             logger.debug("- Targets shape: {}", targets.shape)
+            # - training window
+            client.set_tag(
+                run.info.run_id,
+                "training_window_years",
+                str(self.training_window_years)
+                if self.training_window_years is not None
+                else "all",
+            )
+            client.log_param(
+                run.info.run_id, "training_window_years", self.training_window_years
+            )
+            if self.training_window_years is not None:
+                years = splitters.distinct_years(inputs)
+                window_years = years[-self.training_window_years :]
+                mask = inputs["Year"].astype(int).isin(window_years).to_numpy()
+                inputs = inputs.loc[mask].reset_index(drop=True)
+                targets = targets.loc[mask].reset_index(drop=True)
+                logger.info(
+                    "Restricted training data to years: {}", sorted(window_years)
+                )
+                logger.debug("- Inputs shape after window: {}", inputs.shape)
             # lineage
             # - inputs
             logger.info("Log lineage: inputs")
@@ -109,23 +137,22 @@ class TrainingJob(base.Job):
                         run_id=run.info.run_id, key=f"preprocess_{k}", value=v
                     )
             if self.use_best_from_tuning:
-                logger.info("Fetch best model params from Tuning runs")
-                primary_metric = self.metrics[0]
-                primary_metric_name = primary_metric.name
-                sort_order = "DESC" if primary_metric.greater_is_better else "ASC"
+                # Latest run, not best-ever RMSE_tune_mean_best: scores from
+                # different Tuning runs aren't comparable once the splitter (or its
+                # window) changes, so ranking by score can silently resurrect
+                # params tuned for a stale regime (see RollingWindowSplitter).
+                logger.info("Fetch model params from the most recent Tuning run")
                 runs = client.search_runs(
                     experiment_ids=[run.info.experiment_id],
                     filter_string="tags.mlflow.runName = 'Tuning'",
-                    order_by=[
-                        f"metrics.{primary_metric_name}_tune_mean_best {sort_order}"
-                    ],
+                    order_by=["start_time DESC"],
                     max_results=1,
                 )
                 if runs:
-                    best_run = runs[0]
+                    latest_run = runs[0]
                     # Extracted params are logged without a prefix
                     best_params = {}
-                    for key, val in best_run.data.params.items():
+                    for key, val in latest_run.data.params.items():
                         if hasattr(self.model, key):
                             # Cast to correct type based on current field
                             orig_val = getattr(self.model, key)
@@ -136,18 +163,22 @@ class TrainingJob(base.Job):
                             else:
                                 best_params[key] = val
                     if best_params:
-                        logger.info("Found best params: {}", best_params)
+                        logger.info(
+                            "Found params from run {}: {}",
+                            latest_run.info.run_id,
+                            best_params,
+                        )
                         self.model.set_params(**best_params)
                 else:
                     logger.warning(
-                        "No Tuning runs found! Proceeding with default model params."
+                        "No Tuning runs found! Proceeding with configured model params."
                     )
 
             # log all final model parameters
             for k, v in self.model.get_params().items():
                 client.log_param(run_id=run.info.run_id, key=k, value=v)
             # model
-            logger.info("Fit model on 100% of data: {}", self.model)
+            logger.info("Fit model on 100% of the (windowed) data: {}", self.model)
             self.model.fit(inputs=inputs, targets=targets)
             # outputs (on train data, just for sanity check)
             logger.info("Predict outputs on train data: {}", len(inputs))

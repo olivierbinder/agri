@@ -7,9 +7,12 @@ job:
     KIND: CsvReader
     path: data/processed/targets_train.csv
   model:
-    KIND: XGBoost
+    KIND: RandomForest
   splitter:
-    KIND: YearSplitter
+    KIND: RollingWindowSplitter
+    window: 5
+    test_size: 1  # match the real deployment task: predict next year, not next 4
+    step: 1
   metrics:
     - KIND: SklearnMetric
       name: RMSE
@@ -20,10 +23,11 @@ job:
       sklearn_name: r2_score
       greater_is_better: true
   searcher:
+    # RandomForest only exposes max_depth/n_estimators (no learning_rate/subsample/
+    # colsample_bytree like XGBoost) — small enough grid (16 combos) to search
+    # exhaustively rather than sample.
     KIND: GridCVSearcher
+    n_jobs: -1
     param_grid:
-      max_depth: [10]
-      n_estimators: [400]
-      colsample_bytree: [1.0]
-      learning_rate: [0.15, 0.2]   # Ultime vérification
-      subsample: [0.9, 1.0]
+      max_depth: [10, 15, 20, 25]
+      n_estimators: [100, 200, 300, 400]

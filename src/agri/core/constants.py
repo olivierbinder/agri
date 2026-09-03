@@ -149,7 +149,7 @@ AREAS: list[str] = [
 
 DEFAULT_AREA: str = "France"
 DEFAULT_ITEM: str = "Wheat"
-DEFAULT_YEAR: int = 2024
+DEFAULT_YEAR: int = 2014
 DEFAULT_RAINFALL: float = 800.0
 DEFAULT_PESTICIDES: float = 150.0
 DEFAULT_TEMP: float = 15.0

@@ -115,4 +115,61 @@ class GridCVSearcher(Searcher):
         return results, searcher.best_score_, searcher.best_params_
 
 
-SearcherKind = GridCVSearcher
+class RandomizedCVSearcher(Searcher):
+    """Randomized searcher with cross-fold validation.
+
+    Samples n_iter random combinations from param_grid instead of trying every
+    combination — use when the grid is too large to search exhaustively.
+
+    Convention: metric returns higher values for better models.
+
+    Parameters:
+        n_iter (int): number of parameter combinations to sample.
+        random_state (int): random state for the parameter sampling.
+        n_jobs (int, optional): number of jobs to run in parallel.
+        refit (bool): refit the model after the tuning.
+        verbose (int): set the searcher verbosity level.
+        error_score (str | float): strategy or value on error.
+        return_train_score (bool): include train scores if True.
+    """
+
+    KIND: T.Literal["RandomizedCVSearcher"] = "RandomizedCVSearcher"
+
+    n_iter: int = 20
+    random_state: int = 42
+    n_jobs: int | None = None
+    refit: bool = True
+    verbose: int = 3
+    error_score: str | float = "raise"
+    return_train_score: bool = False
+
+    @T.override
+    def search(
+        self,
+        model: models.Model,
+        metrics: T.Sequence[metrics.Metric],
+        inputs: schemas.Inputs,
+        targets: schemas.Targets,
+        cv: CrossValidation,
+    ) -> Results:
+        scoring = {metric.name: metric.scorer for metric in metrics}
+        refit = metrics[0].name if self.refit else False
+        searcher = model_selection.RandomizedSearchCV(
+            estimator=model,
+            scoring=scoring,
+            cv=cv,
+            param_distributions=self.param_grid,
+            n_iter=self.n_iter,
+            random_state=self.random_state,
+            n_jobs=self.n_jobs,
+            refit=refit,
+            verbose=self.verbose,
+            error_score=self.error_score,
+            return_train_score=self.return_train_score,
+        )
+        searcher.fit(inputs, targets)
+        results = pd.DataFrame(searcher.cv_results_)
+        return results, searcher.best_score_, searcher.best_params_
+
+
+SearcherKind = GridCVSearcher | RandomizedCVSearcher

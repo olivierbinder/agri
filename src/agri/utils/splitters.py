@@ -147,16 +147,20 @@ class TimeSeriesSplitter(Splitter):
         return self.n_splits
 
 
-class YearSplitter(Splitter):
-    """Split a dataframe into custom fixed year ranges.
+class ExpandingWindowSplitter(Splitter):
+    """Split a dataframe into custom fixed year ranges, growing the train set each fold.
 
     Fold 1: Train 1990-1993, Test 1994-1997
     Fold 2: Train 1990-1997, Test 1998-2001
     Fold 3: Train 1990-2001, Test 2002-2005
     Fold 4: Train 1990-2005, Test 2006-2009
+
+    Kept for comparison against RollingWindowSplitter: cross-validation showed that
+    growing the train set with old data hurts accuracy (temporal drift), so this is
+    no longer the default splitter for tuning.
     """
 
-    KIND: T.Literal["YearSplitter"] = "YearSplitter"
+    KIND: T.Literal["ExpandingWindowSplitter"] = "ExpandingWindowSplitter"
 
     @T.override
     def split(
@@ -195,4 +199,81 @@ class YearSplitter(Splitter):
         return 4
 
 
-SplitterKind = TrainTestSplitter | TimeSeriesSplitter | YearSplitter
+def distinct_years(inputs: schemas.Inputs) -> Index:
+    """Return the years present in the inputs, sorted ascending and deduplicated.
+
+    Some years can be entirely absent from the dataset (e.g., 2003), so windows are
+    counted in years actually present rather than assumed via calendar arithmetic.
+
+    Args:
+        inputs (schemas.Inputs): model inputs.
+
+    Returns:
+        Index: sorted array of distinct years present in the inputs.
+    """
+    return np.sort(inputs["Year"].astype(np.int64).unique())
+
+
+class RollingWindowSplitter(Splitter):
+    """Split a dataframe into fixed-size rolling year windows.
+
+    Each fold trains on `window` distinct years and tests on the `test_size`
+    distinct years right after, then the window slides forward by `step` years.
+    Cross-validation across the full history showed a 5-year train window
+    minimizes RMSE, outperforming both shorter windows and the full history
+    (see the WINDOW OPTIMUM section of notebooks/agri.ipynb).
+
+    Parameters:
+        window (int): number of distinct years to train on, per fold.
+        test_size (int): number of distinct years to test on, per fold.
+        step (int): number of distinct years to advance between folds.
+    """
+
+    KIND: T.Literal["RollingWindowSplitter"] = "RollingWindowSplitter"
+
+    window: int = 5
+    test_size: int = 4
+    step: int = 4
+
+    @T.override
+    def split(
+        self,
+        inputs: schemas.Inputs,
+        targets: schemas.Targets,
+        groups: Index | None = None,
+    ) -> TrainTestSplits:
+        years = distinct_years(inputs)
+        fold_size = self.window + self.test_size
+        input_years = inputs["Year"].astype(np.int64)
+
+        start = 0
+        while start + fold_size <= len(years):
+            train_years = years[start : start + self.window]
+            test_years = years[start + self.window : start + fold_size]
+
+            train_index = np.where(input_years.isin(train_years))[0]
+            test_index = np.where(input_years.isin(test_years))[0]
+
+            yield train_index, test_index
+            start += self.step
+
+    @T.override
+    def get_n_splits(
+        self,
+        inputs: schemas.Inputs,
+        targets: schemas.Targets,
+        groups: Index | None = None,
+    ) -> int:
+        n_years = len(distinct_years(inputs))
+        fold_size = self.window + self.test_size
+        if n_years < fold_size:
+            return 0
+        return (n_years - fold_size) // self.step + 1
+
+
+SplitterKind = (
+    TrainTestSplitter
+    | TimeSeriesSplitter
+    | ExpandingWindowSplitter
+    | RollingWindowSplitter
+)

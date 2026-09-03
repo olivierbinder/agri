@@ -1,0 +1,27 @@
+:root {
+  --annex-bg: rgba(120, 128, 140, 0.07);
+  --annex-summary-bg: rgba(120, 128, 140, 0.10);
+  --annex-border: rgba(120, 128, 140, 0.28);
+  --annex-text: #5f6670;
+}
+
+.md-typeset details.info {
+  background: var(--annex-bg);
+  border-color: var(--annex-border);
+  box-shadow: none;
+}
+
+.md-typeset details.info > summary {
+  color: var(--annex-text);
+  font-weight: 600;
+}
+
+.md-typeset details.info[open] > summary {
+  border-bottom: 1px solid var(--annex-border);
+}
+
+.md-typeset details.info > summary::before,
+.md-typeset details.info > summary::after {
+  background-color: var(--annex-text);
+  color: var(--annex-text);
+}

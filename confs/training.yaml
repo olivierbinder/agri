@@ -7,8 +7,9 @@ job:
     KIND: CsvReader
     path: data/processed/targets_train.csv
   use_best_from_tuning: true
+  training_window_years: 5
   model:
-    KIND: XGBoost
+    KIND: RandomForest
   metrics:
     - KIND: SklearnMetric
       name: RMSE

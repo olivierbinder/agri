@@ -14,7 +14,7 @@ from agri.core import features, schemas
 
 # %% TYPES
 
-# Model params
+# Model params.
 ParamKey = str
 ParamValue = T.Any
 Params = dict[ParamKey, ParamValue]
@@ -206,6 +206,7 @@ class RandomForest(Model):
         return model
 
 
+# %% MODELS - XGBOOST
 import xgboost as xgb
 
 

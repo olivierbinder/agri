@@ -1,13 +1,13 @@
 # 🌾 Agri Yield Predictor
 
-[![CI/CD](https://github.com/<owner>/<repo>/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/<owner>/<repo>/actions/workflows/ci-cd.yml)
+[![CI/CD](https://github.com/olivierbinder/agri/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/olivierbinder/agri/actions/workflows/ci-cd.yml)
+[![Docs](https://github.com/olivierbinder/agri/actions/workflows/docs.yml/badge.svg)](https://olivierbinder.github.io/agri/)
 
 Predicts and recommends agricultural crop yields from climate and agricultural
 data (rainfall, pesticides, temperature) using a trained MLflow model, served
 through a FastAPI backend with a Streamlit frontend.
 
-> Replace `<owner>/<repo>` above with this repository's actual path once pushed,
-> so the badge resolves.
+📖 Full documentation: [olivierbinder.github.io/agri](https://olivierbinder.github.io/agri/)
 
 ## Architecture
 

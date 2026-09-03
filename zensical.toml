@@ -1,0 +1,72 @@
+[project]
+site_url = "https://olivierbinder.github.io/agri/"
+site_name = "Agri Yield Predictor"
+site_description = "Prédiction et recommandation de rendements agricoles à partir de données climatiques (FAO)."
+site_author = "Olivier"
+
+repo_url = "https://github.com/olivierbinder/agri"
+repo_name = "olivierbinder/agri"
+edit_uri = "edit/main/docs/"
+
+nav = [
+  { "Contexte" = "index.md" },
+  { "Modèle" = "02_model.md" },
+  { "API" = "03_api.md" },
+  { "Application" = "04_prediction.md" },
+  { "CI/CD" = "05_cicd.md" },
+  { "Dépôt" = "06_depot.md" },
+  { "Architecture du code" = "07_architecture.md" },
+]
+
+extra_css = ["stylesheets/extra.css"]
+
+[project.theme]
+language = "fr"
+features = [
+  "content.code.copy",
+  "content.code.annotate",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.sections",
+  "navigation.top",
+  "navigation.tracking",
+  "navigation.footer",
+  "search.highlight",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "lucide/sun-moon"
+toggle.name = "Basculer en mode clair"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+toggle.icon = "lucide/sun"
+toggle.name = "Basculer en mode sombre"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+toggle.icon = "lucide/moon"
+toggle.name = "Basculer sur la préférence système"
+
+[project.markdown_extensions]
+abbr = {}
+admonition = {}
+attr_list = {}
+def_list = {}
+footnotes = {}
+md_in_html = {}
+toc.permalink = true
+pymdownx.betterem = {}
+pymdownx.details = {}
+pymdownx.highlight.anchor_linenums = true
+pymdownx.highlight.line_spans = "__span"
+pymdownx.highlight.pygments_lang_class = true
+pymdownx.inlinehilite = {}
+pymdownx.magiclink = {}
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
+pymdownx.tabbed.alternate_style = true

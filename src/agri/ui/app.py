@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import requests
 import streamlit as st
+from streamlit.errors import StreamlitSecretNotFoundError
 
 from agri.core import constants
 
@@ -14,8 +15,15 @@ st.markdown(
 )
 
 # Defaults to local dev; set via Streamlit secrets (st.secrets["API_URL"]) or the
-# API_URL env var when this app calls a separately deployed API.
-API_URL = st.secrets.get("API_URL", os.environ.get("API_URL", "http://localhost:8000"))
+# API_URL env var when this app calls a separately deployed API. st.secrets raises
+# if no secrets.toml exists at all (e.g. local dev), so it's only consulted as a
+# fallback once the env var is confirmed absent.
+API_URL = os.environ.get("API_URL")
+if API_URL is None:
+    try:
+        API_URL = st.secrets.get("API_URL", "http://localhost:8000")
+    except StreamlitSecretNotFoundError:
+        API_URL = "http://localhost:8000"
 API_TIMEOUT_SECONDS = 30
 
 st.sidebar.header("Mode")
@@ -40,7 +48,16 @@ if mode == "🔮 Predict a yield":
     )
 
 year = st.sidebar.slider(
-    "Year", min_value=1990, max_value=2050, value=constants.DEFAULT_YEAR, step=1
+    "Year",
+    min_value=1990,
+    max_value=2015,
+    value=constants.DEFAULT_YEAR,
+    step=1,
+    help=(
+        "The model is retrained yearly on a rolling 5-year window (currently "
+        "2008-2012) to counter concept drift, and the underlying dataset stops "
+        "in 2013 — predictions further out are extrapolation, not backed by data."
+    ),
 )
 rainfall = st.sidebar.slider(
     "Average Rainfall (mm/year)",
