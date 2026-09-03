@@ -57,7 +57,7 @@ comm==0.2.3
     # via ipykernel
 contourpy==1.3.3
     # via matplotlib
-cryptography==49.0.0
+cryptography==50.0.0
     # via
     #   google-auth
     #   mlflow
@@ -280,7 +280,7 @@ propcache==0.5.2
     # via
     #   aiohttp
     #   yarl
-protobuf==4.25.9
+protobuf==5.29.6
     # via
     #   agri
     #   databricks-sdk
@@ -370,7 +370,7 @@ scipy==1.18.0
     #   xgboost
 seaborn==0.13.2
     # via agri
-setuptools==69.5.1
+setuptools==83.0.0
     # via agri
 shap==0.52.0
     # via agri
@@ -396,7 +396,7 @@ starlette==1.6.0
     #   mlflow-skinny
 threadpoolctl==3.6.0
     # via scikit-learn
-tornado==6.5.7
+tornado==6.5.8
     # via
     #   ipykernel
     #   jupyter-client

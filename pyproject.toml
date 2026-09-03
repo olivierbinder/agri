@@ -21,8 +21,8 @@ dependencies = [
     "shap>=0.52.0",
     # MLOps & Tracking
     "mlflow>=2",
-    "protobuf<5",      # Pin for MLflow compatibility
-    "setuptools<70",   # Pin for distutils compatibility
+    "protobuf<6",      # Pin for MLflow compatibility
+    "setuptools<84",   # Pin for distutils compatibility
     # Visualization
     "matplotlib>=3.11.1",
     "plotly>=6.9.0",
