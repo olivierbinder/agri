@@ -40,5 +40,8 @@ mlruns/
 # Project outputs
 outputs/
 
+# Zensical build output
+/site/
+
 # Reference scaffold, kept locally but not versioned
 mlops-python-package-main/
