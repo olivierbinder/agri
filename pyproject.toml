@@ -117,7 +117,7 @@ extend-immutable-calls = ["fastapi.Depends"]
 # `assert` is the standard pytest mechanism, not a security concern in test code.
 "tests/**" = ["S101"]
 # Binding to all interfaces is required for the UI to be reachable when deployed
-# in a container / HF Space, not a mistake.
+# in a container (Cloud Run), not a mistake.
 "src/agri/ui/app.py" = ["S104"]
 
 [tool.commitizen]

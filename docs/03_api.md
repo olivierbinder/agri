@@ -38,6 +38,8 @@ sequenceDiagram
 ## Démo
 
 !!! tip "Démo à ouvrir"
+    - **API déployée (Swagger)** : [agri-api-28873275232.europe-west1.run.app/docs](https://agri-api-28873275232.europe-west1.run.app/docs)
+
     Lancer l'API avec **`just api`**, puis ouvrir :
 
     - **Swagger** : [http://localhost:8000/docs](http://localhost:8000/docs)

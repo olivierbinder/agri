@@ -40,9 +40,12 @@ src/agri/
 ```text
 agri/
 |-- tests/                    # miroir de src/agri, dont tests/api/
-|-- deploy/model/             # modèle Champion bundlé (pour l'image Docker)
-|-- .github/workflows/        # ci-cd.yml, docs.yml
-|-- Dockerfile
+|-- deploy/model/             # modèle Champion bundlé dans l'image de l'API
+|-- deploy/reference/         # rendements réels 2013 ("actual vs predicted")
+|-- .github/workflows/        # ci-cd.yml (tests, build, déploiement), docs.yml
+|-- Dockerfile                # image API : FastAPI + modèle
+|-- Dockerfile.ui             # image UI : Gradio seul, sans stack ML
+|-- requirements-ui.txt       # dépendances de l'image UI
 |-- docker-compose.yml
 `-- docs/                     # cette documentation (Zensical)
 ```
@@ -82,13 +85,16 @@ flowchart LR
         APP["ui/app.py"]
     end
 
-    subgraph OPS["<b>5. Qualité et publication</b>"]
+    subgraph OPS["<b>5. Qualité, publication et déploiement</b>"]
         direction TB
         TESTS["tests/"]
         CI["GitHub Actions<br/>ruff + ty + pytest"]
         DOCKER["Dockerfile<br/>API + modèle bundlé"]
-        HUB["Docker Hub<br/>agri-api"]
-        TESTS --> CI --> DOCKER --> HUB
+        DOCKERUI["Dockerfile.ui<br/>UI Gradio seule"]
+        HUB["Docker Hub<br/>agri-api + agri-ui"]
+        RUN["Cloud Run<br/>agri-api + agri-ui"]
+        TESTS --> CI --> DOCKER --> HUB --> RUN
+        CI --> DOCKERUI --> HUB
     end
 
     PROC --> TUNE
@@ -97,6 +103,7 @@ flowchart LR
     CHAMP --> DOCKER
     FASTAPI --> APP
     FASTAPI --> DOCKER
+    APP --> DOCKERUI
 
     classDef data fill:#E8F5E9,stroke:#2E7D32,color:#1B5E20
     classDef train fill:#FFF3E0,stroke:#EF6C00,color:#4E342E
@@ -108,7 +115,7 @@ flowchart LR
     class TUNE,TRAINJOB,MLFLOW,CHAMP train
     class SCHEMAS,LOGIC,FASTAPI api
     class APP ui
-    class TESTS,CI,DOCKER,HUB ops
+    class TESTS,CI,DOCKER,DOCKERUI,HUB,RUN ops
 ```
 
 
@@ -116,7 +123,7 @@ flowchart LR
 
     ## Fichiers racine
 
-    - `pyproject.toml` : dépendances et groupes `check` / `commit` / `dev` / `docs` / `notebook`.
+    - `pyproject.toml` : dépendances du runtime API + extras `ui` / `eda` / `explain`, et groupes `check` / `commit` / `dev` / `docs` / `mlflow` / `notebook`.
     - `uv.lock` : versions figées pour reproduire l'environnement.
     - `justfile` + `tasks/*.just` : raccourcis `api`, `ui`, `app`, `check`, `docker-*`, `docs-*`, `mlflow-*`.
     - `zensical.toml` : navigation et configuration de cette documentation.
@@ -125,5 +132,6 @@ flowchart LR
     ## Artefacts de production
 
     - `deploy/model/` : version `Champion` du registre MLflow, bundlée dans l'image Docker (`just docker-export-model`).
+    - `deploy/reference/` : rendements réels 2013, bundlés eux aussi pour la comparaison « prédit vs réel » de l'API.
     - `data/processed/*.csv` : jeux d'entraînement/test après feature engineering.
     - `outputs/*.csv` : prédictions et explications générées par `InferenceJob` / `ExplanationsJob`.

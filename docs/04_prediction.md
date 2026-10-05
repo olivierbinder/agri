@@ -29,11 +29,13 @@ flowchart LR
 | `/predict` | Calcule le rendement pour la culture sélectionnée |
 | `/recommend` | Classe toutes les cultures pour le contexte courant |
 
-`API_URL` est lu depuis la variable d'environnement `API_URL` (secret du Space sur Hugging Face), avec `http://localhost:8000` par défaut ([src/agri/ui/app.py](../src/agri/ui/app.py)).
+`API_URL` est lue depuis la variable d'environnement `API_URL`, injectée par le déploiement Cloud Run (`--set-env-vars`, avec l'URL du service API) et valant `http://localhost:8000` par défaut en local ([src/agri/ui/app.py](../src/agri/ui/app.py)).
 
 ## Démo
 
 !!! tip "Démo à ouvrir"
+    - **Application déployée** : [agri-ui-28873275232.europe-west1.run.app](https://agri-ui-28873275232.europe-west1.run.app)
+
     Lancer l'application avec **`just ui`** (ou `just app` pour API + UI ensemble), puis ouvrir :
 
     - **Application Gradio** : [http://localhost:7860](http://localhost:7860)
@@ -42,7 +44,11 @@ flowchart LR
 
     ## Déploiement
 
-    L'application est déployée comme **Hugging Face Space** (SDK Gradio), poussé manuellement depuis ce dépôt — indépendamment du pipeline CI/CD (qui, lui, ne s'occupe que de l'API).
+    L'application est un service **Google Cloud Run** (`agri-ui`), déployé par le même job `deploy` que l'API : l'image est construite depuis [Dockerfile.ui](../Dockerfile.ui) — volontairement légère (Gradio, pandas, requests, sans mlflow/xgboost/shap/pandera) —, poussée sur Docker Hub, puis déployée avec `--min-instances 0 --max-instances 1` et l'URL de l'API injectée dans `API_URL`. Détail dans [CI/CD](05_cicd.md).
+
+    ## Cold start
+
+    Avec `--min-instances 0` (indispensable pour ne rien payer au repos), la première visite après une période d'inactivité attend le réveil du conteneur — compter quelques secondes, un peu plus si l'API doit elle aussi démarrer et charger le modèle. C'est le prix du « 0 € ».
 
     ## Gestion des erreurs
 

@@ -37,6 +37,11 @@ jobs:
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    outputs:
+      # Cloud Run resolves Docker Hub images through the mirror.gcr.io pull-through cache, which
+      # can keep serving a stale manifest for a tag that was already deployed once. The digest is
+      # content-addressed, so it can never be stale: that's what the deploy job consumes.
+      digest: ${{ steps.build.outputs.digest }}
     steps:
       - uses: actions/checkout@v4
       - uses: docker/login-action@v3
@@ -44,7 +49,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - uses: docker/setup-buildx-action@v3
-      - uses: docker/build-push-action@v6
+      - id: build
+        uses: docker/build-push-action@v6
         with:
           push: true
           context: .
@@ -54,10 +60,79 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/agri-api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/agri-api:${{ github.sha }}
 
-  # 3. Notify on failure — opens (or updates) a tracking issue with the failed steps' logs
+  # 3. Build — the UI's Docker image (Gradio only, no ML stack), pushed to Docker Hub with
+  #    the same trigger as the API image. Own cache scope: both builds run concurrently on
+  #    the same ref, so sharing the default scope would make them evict each other's layers.
+  build-and-push-ui:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          context: .
+          file: Dockerfile.ui
+          cache-from: type=gha,scope=agri-ui
+          cache-to: type=gha,scope=agri-ui
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/agri-ui:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/agri-ui:${{ github.sha }}
+
+  # 4. Deploy — both images to Cloud Run, only once both builds succeeded. Keyless auth: the
+  #    workflow's OIDC token is exchanged through Workload Identity Federation (no SA key).
+  #    min-instances=0 keeps the services free when idle; max-instances caps the blast radius
+  #    of a traffic spike. REGION is the single place to change if the GCP setup moves.
+  #    Images are referenced by digest (not tag) — see the note on `outputs` above.
+  deploy:
+    needs: [build-and-push, build-and-push-ui]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      REGION: europe-west1
+    steps:
+      - uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+      - uses: google-github-actions/setup-gcloud@v3
+      - name: Deploy the API
+        run: |
+          gcloud run deploy agri-api \
+            --image "docker.io/${{ secrets.DOCKERHUB_USERNAME }}/agri-api@${{ needs.build-and-push.outputs.digest }}" \
+            --region "$REGION" \
+            --allow-unauthenticated \
+            --memory 1Gi --cpu 1 \
+            --min-instances 0 --max-instances 2 \
+            --cpu-boost --timeout 60 --concurrency 20
+      - name: Deploy the UI
+        run: |
+          # The UI is a plain HTTP client of the API: it needs the API's URL at runtime.
+          api_url="$(gcloud run services describe agri-api --region "$REGION" --format='value(status.url)')"
+          gcloud run deploy agri-ui \
+            --image "docker.io/${{ secrets.DOCKERHUB_USERNAME }}/agri-ui@${{ needs.build-and-push-ui.outputs.digest }}" \
+            --region "$REGION" \
+            --allow-unauthenticated \
+            --memory 1Gi --cpu 1 \
+            --min-instances 0 --max-instances 1 \
+            --set-env-vars "API_URL=$api_url"
+
+  # 5. Notify on failure — opens (or updates) a tracking issue with the failed steps' logs
   #    when any job above fails, since there's no chat webhook configured for this project.
   notify-on-failure:
-    needs: [test, build-and-push]
+    needs: [test, build-and-push, build-and-push-ui, deploy]
     if: always() && contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
     permissions:
