@@ -80,8 +80,10 @@ needed, and no registry credentials on Cloud Run because both repositories are p
   idle), `--max-instances 2` (API) / `1` (UI) as a cost ceiling, `--cpu-boost` to shorten
   cold starts, `--concurrency 20` for the CPU-bound API.
 - **Cold starts**: with `min-instances=0` the first request after an idle period takes a few
-  seconds to wake the service (the API also loads the model on its first prediction). Keeping
-  an instance warm would be billed continuously, so a portfolio app accepts the wait.
+  seconds to wake the service, and up to ~15 s the very first time a new revision starts (the
+  node has to pull the image before the container can boot); the API also loads the model on
+  its first prediction. Keeping an instance warm would be billed continuously, so a portfolio
+  app accepts the wait.
 - **Cost**: the Cloud Run free tier (180,000 vCPU-seconds, 360,000 GiB-seconds, 2 M requests
   per month, resets monthly per billing account) covers this workload; the guardrails are
   `min-instances=0` plus low `max-instances`. Region `europe-west1` is set once, in the

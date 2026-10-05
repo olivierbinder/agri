@@ -48,7 +48,7 @@ flowchart LR
 
     ## Cold start
 
-    Avec `--min-instances 0` (indispensable pour ne rien payer au repos), la première visite après une période d'inactivité attend le réveil du conteneur — compter quelques secondes, un peu plus si l'API doit elle aussi démarrer et charger le modèle. C'est le prix du « 0 € ».
+    Avec `--min-instances 0` (indispensable pour ne rien payer au repos), la première visite après une période d'inactivité attend le réveil du conteneur : quelques secondes en régime courant, jusqu'à ~15 s lors du tout premier démarrage d'une nouvelle révision (le nœud doit télécharger l'image avant de démarrer le conteneur), et un peu plus si l'API doit elle aussi démarrer et charger le modèle. Mesuré juste après le premier déploiement automatique : ~16 s sur `/health` comme sur l'UI, image pas encore en cache. C'est le prix du « 0 € ».
 
     ## Gestion des erreurs
 
