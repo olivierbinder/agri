@@ -11,7 +11,7 @@ L'API transforme le modèle enregistré dans MLflow en un <strong>service HTTP t
 
 ```mermaid
 sequenceDiagram
-    participant UI as Streamlit
+    participant UI as Gradio
     participant API as FastAPI
     participant P as Pydantic
     participant D as get_model()

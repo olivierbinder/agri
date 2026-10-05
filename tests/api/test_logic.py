@@ -1,9 +1,54 @@
 # %% IMPORTS
 
+import pandas as pd
+
 from agri.api import logic
 from agri.core import constants, models
 
 # %% LOGIC
+
+
+def test_lookup_actual_yield() -> None:
+    # given: France/Wheat 2013 with the real conditions recorded in the reference file
+    actuals = pd.DataFrame(
+        [
+            {
+                "Area": "France",
+                "Item": "Wheat",
+                "Year": 2013,
+                "average_rain_fall_mm_per_year": 867.0,
+                "pesticides_tonnes": 66497.29,
+                "avg_temp": 11.01,
+                "hg/ha_yield": 72656,
+            }
+        ]
+    )
+    conditions = {
+        "average_rain_fall_mm_per_year": 867.0,
+        "pesticides_tonnes": 66497.29,
+        "avg_temp": 11.01,
+    }
+    # then: exact match
+    assert (
+        logic.lookup_actual_yield(
+            actuals, Area="France", Item="Wheat", Year=2013, **conditions
+        )
+        == 72656.0
+    )
+    # then: no data for that year (e.g. pure extrapolation) -> None, not an error
+    assert (
+        logic.lookup_actual_yield(
+            actuals, Area="France", Item="Wheat", Year=2015, **conditions
+        )
+        is None
+    )
+    # then: no data for that crop -> None
+    assert (
+        logic.lookup_actual_yield(
+            actuals, Area="France", Item="Maize", Year=2013, **conditions
+        )
+        is None
+    )
 
 
 def test_predict_yield(model: models.RandomForest) -> None:
@@ -23,9 +68,12 @@ def test_predict_yield(model: models.RandomForest) -> None:
 
 
 def test_recommend_crops(model: models.RandomForest) -> None:
+    # given: no actuals for this context — lookup_actual_yield is tested on its own
+    actuals = pd.DataFrame({"Area": [], "Item": [], "Year": [], "hg/ha_yield": []})
     # when
     ranking = logic.recommend_crops(
         model,  # ty: ignore[invalid-argument-type]
+        actuals,
         Area=constants.DEFAULT_AREA,
         Year=constants.DEFAULT_YEAR,
         average_rain_fall_mm_per_year=constants.DEFAULT_RAINFALL,
@@ -33,8 +81,11 @@ def test_recommend_crops(model: models.RandomForest) -> None:
         avg_temp=constants.DEFAULT_TEMP,
     )
     # then
-    assert set(ranking.columns) == {"Item", "prediction", "relative_score"}, (
-        "Ranking should expose Item, prediction and relative_score columns!"
+    assert set(ranking.columns) == {"Item", "prediction", "relative_score", "actual"}, (
+        "Ranking should expose Item, prediction, relative_score and actual columns!"
+    )
+    assert ranking["actual"].isna().all(), (
+        "No row should have an actual value when actuals is empty!"
     )
     assert set(ranking["Item"]) == set(constants.ITEMS), (
         "Ranking should cover every known crop, exactly once!"

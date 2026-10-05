@@ -31,7 +31,7 @@ flowchart LR
 
 `build-and-push` est limité à `main` : les PR et les autres branches ne lancent que `test`, pour ne rien publier de non validé.
 
-**Pas de déploiement automatisé dans ce pipeline** — volontairement, pour cet exercice : l'image publiée sur Docker Hub est prête à être déployée, mais le déploiement effectif (choix d'hébergeur, redémarrage du service) se fait manuellement, en dehors de la CI/CD. Le frontend Streamlit est géré à part (voir [Application](04_prediction.md)).
+**Pas de déploiement automatisé dans ce pipeline** — volontairement, pour cet exercice : l'image publiée sur Docker Hub est prête à être déployée, mais le déploiement effectif (choix d'hébergeur, redémarrage du service) se fait manuellement, en dehors de la CI/CD. Le frontend Gradio est géré à part (voir [Application](04_prediction.md)).
 
 ## Notification d'échec
 

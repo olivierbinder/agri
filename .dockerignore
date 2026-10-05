@@ -1,10 +1,10 @@
-# Cache and virtual environments
+# Cache and virtual environments (patterns also match the nested ones, e.g. deploy/model/)
 .env
 .venv/
-__pycache__/
+**/__pycache__/
 *.py[oc]
-.ruff_cache/
-.pytest_cache/
+**/.ruff_cache/
+**/.pytest_cache/
 
 # Notebooks
 notebooks/
@@ -20,6 +20,7 @@ outputs/
 .git/
 .github/
 Dockerfile
+Dockerfile.ui
 .dockerignore
 docker-compose.yml
 

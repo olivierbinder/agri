@@ -1,8 +1,9 @@
+import pandas as pd
 import pydantic as pdt
 from fastapi import Depends, FastAPI
 
 from agri.api import logic
-from agri.api.dependencies import get_model
+from agri.api.dependencies import get_actuals, get_model
 from agri.core import constants
 from agri.io import registries
 
@@ -21,7 +22,11 @@ class PredictRequest(pdt.BaseModel):
 
 class PredictResponse(pdt.BaseModel):
     prediction: float
+    actual: float | None = None
     unit: str = constants.YIELD_UNIT
+    # Real conditions recorded for the requested Area/Item/Year, when available. The UI
+    # uses them to pre-fill the sliders and to explain why `actual` is None.
+    reference_conditions: dict[str, float] | None = None
 
 
 class RecommendRequest(pdt.BaseModel):
@@ -36,6 +41,7 @@ class CropRecommendation(pdt.BaseModel):
     Item: str
     prediction: float
     relative_score: float
+    actual: float | None = None
 
 
 class RecommendResponse(pdt.BaseModel):
@@ -45,17 +51,32 @@ class RecommendResponse(pdt.BaseModel):
 
 @app.post("/predict", response_model=PredictResponse)
 def predict(
-    request: PredictRequest, model: registries.Loader.Adapter = Depends(get_model)
+    request: PredictRequest,
+    model: registries.Loader.Adapter = Depends(get_model),
+    actuals: pd.DataFrame = Depends(get_actuals),
 ):
     pred_value = logic.predict_yield(model, **request.model_dump())
-    return PredictResponse(prediction=pred_value)
+    actual = logic.lookup_actual_yield(actuals, **request.model_dump())
+    row = logic.lookup_actual_row(
+        actuals, Area=request.Area, Item=request.Item, Year=request.Year
+    )
+    conditions = (
+        {feature: float(row[feature]) for feature in logic.ACTUAL_FEATURES}
+        if row is not None
+        else None
+    )
+    return PredictResponse(
+        prediction=pred_value, actual=actual, reference_conditions=conditions
+    )
 
 
 @app.post("/recommend", response_model=RecommendResponse)
 def recommend(
-    request: RecommendRequest, model: registries.Loader.Adapter = Depends(get_model)
+    request: RecommendRequest,
+    model: registries.Loader.Adapter = Depends(get_model),
+    actuals: pd.DataFrame = Depends(get_actuals),
 ):
-    ranked = logic.recommend_crops(model, **request.model_dump())
+    ranked = logic.recommend_crops(model, actuals, **request.model_dump())
     recommendations = [CropRecommendation(**row) for row in ranked.to_dict("records")]
     return RecommendResponse(recommendations=recommendations)
 

@@ -20,6 +20,17 @@ def client(model: models.RandomForest) -> T.Generator[TestClient, None, None]:
     server.app.dependency_overrides.clear()
 
 
+# %% CONSTANTS
+
+# Real conditions recorded for France/Wheat/2013 in deploy/reference/actuals.csv: the
+# bundled actual yield is only returned when the request matches them (the generic
+# DEFAULT_* values describe another plot, so `actual` would be None by design).
+REFERENCE_CONDITIONS = {
+    "average_rain_fall_mm_per_year": 867.0,
+    "pesticides_tonnes": 66497.29,
+    "avg_temp": 11.01,
+}
+
 # %% ENDPOINTS
 
 
@@ -37,9 +48,7 @@ def test_predict(client: TestClient) -> None:
         "Area": constants.DEFAULT_AREA,
         "Item": constants.DEFAULT_ITEM,
         "Year": constants.DEFAULT_YEAR,
-        "average_rain_fall_mm_per_year": constants.DEFAULT_RAINFALL,
-        "pesticides_tonnes": constants.DEFAULT_PESTICIDES,
-        "avg_temp": constants.DEFAULT_TEMP,
+        **REFERENCE_CONDITIONS,
     }
     # when
     response = client.post("/predict", json=payload)
@@ -48,6 +57,10 @@ def test_predict(client: TestClient) -> None:
     data = response.json()
     assert data["unit"] == constants.YIELD_UNIT
     assert data["prediction"] >= 0, "Yield prediction should never be negative!"
+    # the requested conditions match the bundled record for France/Wheat/2013
+    assert data["actual"] == 72656.0, (
+        "The bundled deploy/reference/actuals.csv should be loaded and matched!"
+    )
 
 
 def test_predict__invalid_payload(client: TestClient) -> None:
@@ -63,9 +76,7 @@ def test_recommend(client: TestClient) -> None:
     payload = {
         "Area": constants.DEFAULT_AREA,
         "Year": constants.DEFAULT_YEAR,
-        "average_rain_fall_mm_per_year": constants.DEFAULT_RAINFALL,
-        "pesticides_tonnes": constants.DEFAULT_PESTICIDES,
-        "avg_temp": constants.DEFAULT_TEMP,
+        **REFERENCE_CONDITIONS,
     }
     # when
     response = client.post("/recommend", json=payload)
@@ -80,4 +91,8 @@ def test_recommend(client: TestClient) -> None:
     scores = [r["relative_score"] for r in recommendations]
     assert scores == sorted(scores, reverse=True), (
         "Recommendations should be ranked by relative_score, descending!"
+    )
+    wheat = next(r for r in recommendations if r["Item"] == "Wheat")
+    assert wheat["actual"] == 72656.0, (
+        "France/Wheat/2013 has a real, bundled actual yield!"
     )

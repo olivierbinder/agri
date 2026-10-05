@@ -24,7 +24,7 @@ flowchart LR
 
 ## `core/` — le domaine métier
 
-Aucune dépendance vers MLflow, FastAPI ou Streamlit ici : uniquement de la logique data science pure, réutilisable partout (jobs, API, tests).
+Aucune dépendance vers MLflow, FastAPI ou Gradio ici : uniquement de la logique data science pure, réutilisable partout (jobs, API, tests).
 
 | Module | Rôle | Classes clés |
 | --- | --- | --- |

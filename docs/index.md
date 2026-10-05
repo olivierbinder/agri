@@ -11,7 +11,7 @@ Prédire et recommander des <strong>rendements agricoles</strong> à partir de d
 [![XGBoost](https://img.shields.io/badge/XGBoost-006ACC?style=for-the-badge&logo=xgboost&logoColor=white)](https://xgboost.readthedocs.io/)
 [![MLflow](https://img.shields.io/badge/MLflow-0194E2?style=for-the-badge&logo=mlflow&logoColor=white)](https://mlflow.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Gradio](https://img.shields.io/badge/Gradio-FF7C00?style=for-the-badge&logo=gradio&logoColor=white)](https://www.gradio.app/)
 [![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
 [![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)](https://github.com/features/actions)
 
@@ -21,14 +21,14 @@ flowchart LR
     B --> C[Modèle XGBoost<br/>tuné via GridSearchCV]
     C --> D[MLflow Registry<br/>alias Champion]
     D --> E[API FastAPI]
-    E --> F[App Streamlit]
+    E --> F[App Gradio]
     D -.export bundle.-> G[Image Docker]
 ```
 
 L'API et le frontend sont déployés indépendamment :
 
 - l'**API** est packagée dans une image Docker (le modèle `Champion` y est embarqué), construite et poussée sur Docker Hub par la CI/CD ;
-- l'**application Streamlit** est déployée séparément sur Streamlit Community Cloud, connectée directement à ce dépôt GitHub.
+- l'**application Gradio** est déployée séparément sur un Hugging Face Space, poussé manuellement depuis ce dépôt.
 
 ## Stack MLOps
 
@@ -39,7 +39,7 @@ L'API et le frontend sont déployés indépendamment :
 | `SHAP` | Explicabilité du modèle (importances, valeurs SHAP) |
 | `MLflow` | Tracking des expérimentations, model registry, alias `Champion` |
 | `FastAPI` / `Pydantic` | Service HTTP de prédiction, validation des requêtes |
-| `Streamlit` | Interface utilisateur métier |
+| `Gradio` | Interface utilisateur métier |
 | `Docker` / `Docker Hub` | Packaging et distribution de l'image de l'API |
 | `GitHub Actions` | Tests, build et publication automatisés |
 | `uv` / `just` | Gestion d'environnement et raccourcis de commandes |
@@ -48,7 +48,7 @@ L'API et le frontend sont déployés indépendamment :
 
 - **[Modèle](02_model.md)** — préparation des données, feature engineering, entraînement et tuning.
 - **[API](03_api.md)** — le service FastAPI qui sert le modèle.
-- **[Application](04_prediction.md)** — l'interface Streamlit.
+- **[Application](04_prediction.md)** — l'interface Gradio.
 - **[CI/CD](05_cicd.md)** — le pipeline de tests et de build.
 - **[Dépôt](06_depot.md)** — structure du code et synthèse.
 - **[Architecture du code](07_architecture.md)** — `core`, `io`, `jobs`, `utils`, `confs` : le cœur data science, piloté par MLflow.

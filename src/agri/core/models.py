@@ -7,7 +7,6 @@ import typing as T
 
 import pandas as pd
 import pydantic as pdt
-import shap
 from sklearn import ensemble, pipeline
 
 from agri.core import features, schemas
@@ -186,6 +185,8 @@ class RandomForest(Model):
 
     @T.override
     def explain_samples(self, inputs: schemas.Inputs) -> schemas.SHAPValues:
+        import shap  # Deferred: the SHAP stack (numba, llvmlite) is only needed here.
+
         model = self.get_internal_model()
         regressor = model.named_steps["regressor"]
         transformer = model[:-1]
@@ -292,6 +293,8 @@ class XGBoost(Model):
 
     @T.override
     def explain_samples(self, inputs: schemas.Inputs) -> schemas.SHAPValues:
+        import shap  # Deferred: the SHAP stack (numba, llvmlite) is only needed here.
+
         model = self.get_internal_model()
         regressor = model.named_steps["regressor"]
         transformer = model[:-1]

@@ -5,7 +5,7 @@
 
 Predicts and recommends agricultural crop yields from climate and agricultural
 data (rainfall, pesticides, temperature) using a trained MLflow model, served
-through a FastAPI backend with a Streamlit frontend.
+through a FastAPI backend with a Gradio frontend.
 
 📖 Full documentation: [olivierbinder.github.io/agri](https://olivierbinder.github.io/agri/)
 
@@ -24,16 +24,15 @@ flowchart LR
     ci -->|2. build| build[Docker build: API image]
     ci -->|3. push| hub[(Docker Hub<br/>agri-api)]
 
-    scc[Streamlit Community Cloud] -->|watches repo,<br/>redeploys on push| ui[Streamlit UI]
+    dev[git push, manual] -.-> space[Hugging Face Space<br/>Gradio UI]
 ```
 
 - **API** ([Dockerfile](Dockerfile)): tested and its Docker image built/pushed
   to Docker Hub by the CI/CD pipeline. Running the image anywhere is a manual
   step, outside this pipeline.
-- **Frontend** ([src/agri/ui/app.py](src/agri/ui/app.py)): deployed on
-  [Streamlit Community Cloud](https://streamlit.io/cloud), connected directly to
-  this GitHub repo — it redeploys itself on every push to `main`, independently of
-  the GitHub Actions pipeline and set up separately from it.
+- **Frontend** ([src/agri/ui/app.py](src/agri/ui/app.py)): deployed as a
+  [Hugging Face Space](https://huggingface.co/spaces) (Gradio SDK) — pushed to
+  manually, outside the GitHub Actions pipeline and set up separately from it.
 
 ## CI/CD pipeline
 
@@ -54,21 +53,22 @@ run `test`, so nothing half-finished gets published.
 | `DOCKERHUB_USERNAME` | Docker Hub login + image tag namespace |
 | `DOCKERHUB_TOKEN` | Docker Hub [access token](https://hub.docker.com/settings/security) (not your password) |
 
-### Streamlit Community Cloud setup
+### Hugging Face Space setup
 
-Set up separately from the CI/CD pipeline: connect this repo (main branch,
-`src/agri/ui/app.py` as the entry point) in Streamlit Community Cloud, then
-add under the app's Settings → Secrets:
+Set up separately from the CI/CD pipeline: create a
+[Space](https://huggingface.co/new-space) (SDK: Gradio, entry point
+`src/agri/ui/app.py`), push this repo to it, then add under the Space's
+Settings → Repository secrets:
 
-```toml
-API_URL = "https://<wherever-the-api-runs>"
+```
+API_URL = https://<wherever-the-api-runs>
 ```
 
 ## Local development
 
 ```bash
 uv sync
-just app          # FastAPI on :8000, Streamlit on :7860, both from source
+just app          # FastAPI on :8000, Gradio on :7860, both from source
 ```
 
 ## Docker (API only)
@@ -79,7 +79,7 @@ just docker-build
 just docker-run            # API on :8000
 ```
 
-`just docker-app` builds and runs the API in Docker while running Streamlit
+`just docker-app` builds and runs the API in Docker while running Gradio
 locally against it (`API_URL=http://localhost:8000`) — the closest local
 approximation of the deployed split architecture.
 

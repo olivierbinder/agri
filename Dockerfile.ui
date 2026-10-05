@@ -1,0 +1,33 @@
+# Lightweight UI image: Gradio only, no ML stack.
+# Runs src/agri/ui/app.py, which calls the separately deployed API via $API_URL.
+
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app/src \
+    GRADIO_ANALYTICS_ENABLED=False
+
+WORKDIR /app
+
+# UI-only dependencies — cacheable layer. Version source of truth: the `ui` extra in
+# pyproject.toml (this image installs neither mlflow, xgboost, sklearn nor pandera).
+# pip compiles bytecode by default; drop it to shave the image (nothing imports pip at runtime).
+COPY requirements-ui.txt ./
+RUN pip install --no-cache-dir -r requirements-ui.txt \
+    && rm -rf /usr/local/lib/python3.12/test \
+              /usr/local/lib/python3.12/idlelib \
+              /usr/local/lib/python3.12/ensurepip \
+              /usr/local/lib/python3.12/site-packages/pip \
+              /usr/local/lib/python3.12/site-packages/pip-*.dist-info \
+              /usr/local/lib/python3.12/site-packages/wheel \
+              /usr/local/lib/python3.12/site-packages/wheel-*.dist-info
+
+# Only what the UI actually needs: package init, core constants, the app itself.
+COPY src/agri/__init__.py ./src/agri/__init__.py
+COPY src/agri/core/ ./src/agri/core/
+COPY src/agri/ui/app.py ./src/agri/ui/app.py
+
+EXPOSE 7860
+
+# Cloud Run injects $PORT (8080); defaults to 7860 for local docker run.
+CMD ["python", "src/agri/ui/app.py"]

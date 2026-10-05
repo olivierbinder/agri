@@ -23,7 +23,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version-file: .python-version
-      - run: uv sync --no-default-groups --group=check --group=dev
+      # The API image installs the main dependencies only; tests need the extras
+      # (ui/eda/explain) and the full mlflow package (tracking server for the fixtures).
+      - run: uv sync --no-default-groups --all-extras --group=check --group=dev --group=mlflow
       - run: uv run just check-code
       - run: uv run just check-type
       - run: uv run just check-format

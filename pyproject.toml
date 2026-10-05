@@ -18,20 +18,32 @@ dependencies = [
     # Machine Learning
     "scikit-learn>=1.9.0",
     "xgboost>=3.3.0",
-    "shap>=0.52.0",
-    # MLOps & Tracking
-    "mlflow>=2",
+    # MLOps & Tracking — client only: the API loads the bundled model with mlflow.pyfunc.
+    # The full MLflow server (UI, doctor) lives in the `mlflow` dependency group.
+    "mlflow-skinny>=2",
     "protobuf<5",      # Pin for MLflow compatibility
     "setuptools<70",   # Pin for distutils compatibility
-    # Visualization
+    # Web & API
+    "fastapi>=0.141.1",
+    "uvicorn>=0.52.4",
+]
+
+# OPTIONAL DEPENDENCIES
+# Installed per target: none are needed by the API image, the UI image installs `ui`
+# (mirrored in requirements-ui.txt), and local dev installs them all with --all-extras.
+
+[project.optional-dependencies]
+ui = [
+    "gradio>=6.28.0",
+    "requests>=2.34.2",
+]
+eda = [
     "matplotlib>=3.11.1",
     "plotly>=6.9.0",
     "seaborn>=0.13.2",
-    # Web & API
-    "fastapi>=0.141.1",
-    "requests>=2.34.2",
-    "streamlit>=1.60.0",
-    "uvicorn>=0.52.4",
+]
+explain = [
+    "shap>=0.52.0",
 ]
 
 # DEPENDENCIES
@@ -55,6 +67,9 @@ dev = [
 docs = [
     "zensical>=0.0.58",
 ]
+mlflow = [
+    "mlflow>=2",  # Full package: server/UI (`just mlflow-serve`), not needed at runtime
+]
 notebook = [
     "ipykernel>=7.3.0",
     "ipywidgets>=8.1.9",
@@ -71,7 +86,7 @@ agri = "agri:main"
 # TOOLS
 
 [tool.uv]
-default-groups = ["check", "commit", "notebook"]
+default-groups = ["check", "commit", "mlflow", "notebook"]
 
 [build-system]
 requires = ["uv_build>=0.11.2,<0.12.0"]
@@ -101,9 +116,9 @@ extend-immutable-calls = ["fastapi.Depends"]
 "*.ipynb" = ["I001","F401"]
 # `assert` is the standard pytest mechanism, not a security concern in test code.
 "tests/**" = ["S101"]
-# Top-level Streamlit callbacks: catch-all Exception is intentional, to show a
-# friendly error message regardless of failure cause.
-"src/agri/ui/app.py" = ["BLE001"]
+# Binding to all interfaces is required for the UI to be reachable when deployed
+# in a container / HF Space, not a mistake.
+"src/agri/ui/app.py" = ["S104"]
 
 [tool.commitizen]
 name = "cz_conventional_commits"

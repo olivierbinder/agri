@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "read-in-cwd",
+      "write-in-cwd",
+      "query-git-log",
+      "write-in-tmp",
+      "read-in-tmp",
+      "read-out-cwd",
+      "network"
+    ],
+    "deny": [],
+    "ask": [
+      "mcp"
+    ],
+    "defaultMode": "askAll"
+  },
+  "model": "deepseek-flash",
+  "thinkingEnabled": true,
+  "reasoningEffort": "high"
+}

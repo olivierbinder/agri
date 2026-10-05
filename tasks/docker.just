@@ -33,9 +33,20 @@ docker-build:
 docker-run:
     docker run --rm -p 8000:8000 agri-api
 
-# run the API (Docker) and Streamlit (local) together, like the deployed setup
+# run the API (Docker) and the UI (local) together, like the deployed setup
 [group('docker')]
 docker-app: docker-build
     docker run --rm -d -p 8000:8000 --name agri-api-tmp agri-api
-    API_URL=http://localhost:8000 uv run streamlit run src/agri/ui/app.py || true
+    API_URL=http://localhost:8000 uv run python src/agri/ui/app.py || true
     docker stop agri-api-tmp
+
+# build the UI's Docker image (lightweight, Gradio only)
+[group('docker')]
+docker-build-ui:
+    docker build -f Dockerfile.ui -t agri-ui .
+
+# run the UI's Docker image locally (:7860), pointing at an API on the host's :8000
+# (start the API first with `just docker-run` or `just api`)
+[group('docker')]
+docker-run-ui:
+    docker run --rm -p 7860:7860 -e API_URL=http://host.docker.internal:8000 agri-ui

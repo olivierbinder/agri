@@ -1,0 +1,7 @@
+# UI-only dependencies, kept minimal so the Gradio image stays well under the API one:
+# no mlflow / xgboost / sklearn / pandera / shap / matplotlib here. pip-installed as-is
+# (not via uv) so the image never sees the project's main dependencies.
+# Version source of truth: the `ui` extra of pyproject.toml.
+gradio>=6.28.0
+pandas<3
+requests>=2.34.2

@@ -32,7 +32,7 @@ src/agri/
 |-- jobs/          # TuningJob, TrainingJob, EvaluationsJob, ExplanationsJob, PromotionJob, InferenceJob
 |-- utils/         # splitters, searchers, signers
 |-- api/           # server (FastAPI), logic, dependencies
-`-- ui/            # app.py (Streamlit)
+`-- ui/            # app.py (Gradio)
 ```
 
 ### Exploitation
@@ -77,7 +77,7 @@ flowchart LR
         LOGIC --> FASTAPI
     end
 
-    subgraph UI["<b>4. Interface Streamlit</b>"]
+    subgraph UI["<b>4. Interface Gradio</b>"]
         direction TB
         APP["ui/app.py"]
     end
@@ -111,9 +111,6 @@ flowchart LR
     class TESTS,CI,DOCKER,HUB ops
 ```
 
-## Merci
-
-Merci pour votre attention.
 
 ??? info "Annexes"
 
